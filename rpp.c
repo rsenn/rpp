@@ -127,14 +127,14 @@ void setup_io()
 	mem_fd = open(gpio_dev, O_RDWR|O_SYNC);
 	if (mem_fd == -1) {
 		fprintf(stderr, "Cannot open %s", gpio_dev);
-		perror("");
+		perror(": ");
 		exit(1);
 	}
 
 	/* mmap GPIO */
 	gpio_map = mmap(NULL, BLOCK_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, mem_fd, GPIO_BASE);
 	if (gpio_map == MAP_FAILED) {
-		perror("mmap() failed");
+		perror("mmap() failed: ");
 		exit(1);
 	}
 
@@ -168,7 +168,7 @@ void close_io()
 	/* munmap GPIO */
 	ret = munmap(gpio_map, BLOCK_SIZE);
 	if (ret == -1) {
-		perror("munmap() failed");
+		perror("munmap() failed: ");
 		exit(1);
 	}
 
@@ -176,7 +176,7 @@ void close_io()
 	ret = close(mem_fd);
 	if (ret == -1) {
 		fprintf(stderr, "Cannot close %s", gpio_dev);
-		perror("");
+		perror(": ");
 		exit(1);
 	}
 }
