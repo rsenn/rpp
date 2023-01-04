@@ -115,6 +115,7 @@ const struct picmicro pic16f877  = {PIC16F877,  "pic16f877",  0x2000, 256,  4000
 const struct picmicro *piclist[] = {&pic16f84a, &pic16f627a, &pic16f628a, &pic16f648a, &pic16f870, &pic16f871, &pic16f872, &pic16f873, &pic16f874, &pic16f876, &pic16f877, NULL};
 
 int                mem_fd;
+const char        *gpio_dev = "/dev/mem";
 void              *gpio_map;
 volatile uint32_t *gpio;
 
@@ -123,9 +124,10 @@ volatile uint32_t *gpio;
 void setup_io()
 {
 	/* open /dev/mem */
-	mem_fd = open("/dev/mem", O_RDWR|O_SYNC);
+	mem_fd = open(gpio_dev, O_RDWR|O_SYNC);
 	if (mem_fd == -1) {
-		perror("Cannot open /dev/mem");
+		fprintf(stderr, "Cannot open %s", gpio_dev);
+		perror("");
 		exit(1);
 	}
 
@@ -173,7 +175,8 @@ void close_io()
 	/* close /dev/mem */
 	ret = close(mem_fd);
 	if (ret == -1) {
-		perror("Cannot close /dev/mem");
+		fprintf(stderr, "Cannot close %s", gpio_dev);
+		perror("");
 		exit(1);
 	}
 }
@@ -806,7 +809,7 @@ int main(int argc, char *argv[])
 
 	fprintf(stderr, "Raspberry Pi PIC Programmer, v0.1\n\n");
 
-	while ((opt = getopt(argc, argv, "hDi:o:rwes")) != -1) {
+	while ((opt = getopt(argc, argv, "hDi:o:rwesd:")) != -1) {
 		switch (opt) {
 		case 'h':
 			usage();
@@ -832,6 +835,9 @@ int main(int argc, char *argv[])
 			break;
 		case 's':
 			skipones = 1;
+			break;
+		case 'd':
+			gpio_dev = optarg;
 			break;
 		default:
 			fprintf(stderr, "\n");
